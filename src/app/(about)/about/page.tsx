@@ -3,7 +3,10 @@ import Skills from "@/src/components/About/Skills";
 import Link from "next/link";
 
 
-export const metadata = {
+export const metadata: {
+  title: string,
+  description: string
+} = {
   title: "About Me",
   description: `Here are some details about my self.`,
 };

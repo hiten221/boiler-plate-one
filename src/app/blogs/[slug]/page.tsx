@@ -2,7 +2,7 @@ import BlogDetails from "@/src/components/Blog/BlogDetails";
 import RenderMdx from "@/src/components/Blog/RenderMdx";
 import Tag from "@/src/components/Elements/Tag";
 import siteMetadata from "@/src/utils/siteMetaData";
-import { allBlogs } from "contentlayer/generated";
+import { Blog, ImageFieldData, allBlogs } from "contentlayer/generated";
 import { slug } from "github-slugger";
 import Image from "next/image";
 
@@ -10,7 +10,7 @@ export async function generateStaticParams() {
   return allBlogs.map((blog) => ({ slug: blog._raw.flattenedPath }));
 }
 
-export async function generateMetadata({ params }) {
+export async function generateMetadata({ params }: { params: { slug: string } }) {
   const blog = allBlogs.find((blog) => blog._raw.flattenedPath === params.slug);
   if (!blog) {
     return;
@@ -19,14 +19,14 @@ export async function generateMetadata({ params }) {
   const publishedAt = new Date(blog.publishedAt).toISOString();
   const modifiedAt = new Date(blog.updatedAt || blog.publishedAt).toISOString();
 
-  let imageList = [siteMetadata.socialBanner];
+  let imageList: any = [siteMetadata.socialBanner];
   if (blog.image) {
     imageList =
       typeof blog.image.filePath === "string"
         ? [siteMetadata.siteUrl + blog.image.filePath.replace("../public", "")]
         : blog.image;
   }
-  const ogImages = imageList.map((img) => {
+  const ogImages = imageList?.map((img: string) => {
     return { url: img.includes("http") ? img : siteMetadata.siteUrl + img };
   });
 
@@ -56,11 +56,11 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function BlogPage({ params }) {
-  const blog = allBlogs.find((blog) => blog._raw.flattenedPath === params.slug);
+export default function BlogPage({ params }: Readonly<{ params: { slug: string } }>) {
+  const blog: any = allBlogs.find((blog) => blog._raw.flattenedPath === params.slug);
 
-  let imageList = [siteMetadata.socialBanner];
-  if (blog.image) {
+  let imageList: any = [siteMetadata.socialBanner];
+  if (blog?.image) {
     imageList =
       typeof blog.image.filePath === "string"
         ? [siteMetadata.siteUrl + blog.image.filePath.replace("../public", "")]
@@ -70,11 +70,11 @@ export default function BlogPage({ params }) {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
-    "headline": blog.title,
-    "description": blog.description,
+    "headline": blog?.title,
+    "description": blog?.description,
     "image": imageList,
-    "datePublished": new Date(blog.publishedAt).toISOString(),
-    "dateModified": new Date(blog.updatedAt || blog.publishedAt).toISOString(),
+    "datePublished": new Date(blog?.publishedAt).toISOString(),
+    "dateModified": new Date(blog?.updatedAt || blog?.publishedAt).toISOString(),
     "author": [{
         "@type": "Person",
         "name": blog?.author ? [blog.author] : siteMetadata.author,
@@ -127,7 +127,11 @@ export default function BlogPage({ params }) {
               Table Of Content
             </summary>
             <ul className="mt-4 font-in text-base">
-              {blog.toc.map((heading) => {
+              {blog.toc.map((heading: {
+                slug: string,
+                level: string,
+                text: string
+              }) => {
                 return (
                   <li key={`#${heading.slug}`} className="py-1">
                     <a
